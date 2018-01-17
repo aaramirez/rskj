@@ -157,7 +157,7 @@ public class MinerUtils {
                 logger.debug("Pending transaction {} {}", toBI(tx.getNonce()), Hex.toHexString(tx.getHash()));
                 RskAddress txSender = tx.getSender();
 
-                logger.debug("Examining transaction {} sender: {} value: {} nonce: {}", Hex.toHexString(tx.getHash()), txSender, Hex.toHexString(tx.getValue()), Hex.toHexString(tx.getNonce()));
+                logger.debug("Examining transaction {} sender: {} value: {} nonce: {}", Hex.toHexString(tx.getHash()), txSender, tx.getValue(), Hex.toHexString(tx.getNonce()));
 
                 BigInteger txNonce = new BigInteger(1, tx.getNonce());
 
@@ -183,7 +183,7 @@ public class MinerUtils {
 
                 accountNonces.put(txSender, txNonce);
 
-                logger.debug("Accepted transaction {} sender: {} value: {} nonce: {}", Hex.toHexString(tx.getHash()), txSender, Hex.toHexString(tx.getValue()), Hex.toHexString(tx.getNonce()));
+                logger.debug("Accepted transaction {} sender: {} value: {} nonce: {}", Hex.toHexString(tx.getHash()), txSender, tx.getValue(), Hex.toHexString(tx.getNonce()));
             } catch (Exception e) {
                 // Txs that can't be selected by any reason should be removed from pending state
                 String hash = null == tx.getHash() ? "" : Hex.toHexString(tx.getHash());

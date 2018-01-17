@@ -20,6 +20,7 @@
 package org.ethereum.core;
 
 import co.rsk.config.RskSystemProperties;
+import co.rsk.core.Coin;
 import co.rsk.panic.PanicProcessor;
 import co.rsk.peg.BridgeUtils;
 import co.rsk.core.RskAddress;
@@ -73,8 +74,13 @@ public class Transaction implements SerializableObject {
     /* a counter used to make sure each transaction can only be processed once */
     private byte[] nonce;
 
-    /* the amount of ether to transfer (calculated as wei) */
-    private byte[] value;
+    /**
+     * The amount to transfer.
+     * Note that valueRaw is saved to perform {@link #validate()} and {@link #getEncoded()},
+     * but once validated a Transaction should only rely on value.
+     * */
+    private byte[] valueRaw;
+    private Coin value;
 
     /* the address of the destination account
      * In creation transaction the receive address is - 0 */
@@ -135,17 +141,18 @@ public class Transaction implements SerializableObject {
         this.signature = ECDSASignature.fromComponents(r, s, v);
     }
 
-    public Transaction(byte[] nonce, byte[] gasPrice, byte[] gasLimit, byte[] receiveAddress, byte[] value, byte[] data,
+    public Transaction(byte[] nonce, byte[] gasPrice, byte[] gasLimit, byte[] receiveAddress, byte[] valueRaw, byte[] data,
                        byte chainId) {
         this.nonce = ByteUtil.cloneBytes(nonce);
         this.gasPrice = ByteUtil.cloneBytes(gasPrice);
         this.gasLimit = ByteUtil.cloneBytes(gasLimit);
         this.receiveAddress = RLP.parseRskAddress(ByteUtil.cloneBytes(receiveAddress));
-        if (value == null || ByteUtil.isSingleZero(value)) {
-            this.value = EMPTY_BYTE_ARRAY;
+        if (valueRaw == null || ByteUtil.isSingleZero(valueRaw)) {
+            this.valueRaw = EMPTY_BYTE_ARRAY;
         } else {
-            this.value = ByteUtil.cloneBytes(value);
+            this.valueRaw = ByteUtil.cloneBytes(valueRaw);
         }
+        this.value = RLP.parseCoin(this.valueRaw);
         this.data = ByteUtil.cloneBytes(data);
         this.chainId = chainId;
 
@@ -212,7 +219,7 @@ public class Transaction implements SerializableObject {
         if (gasPrice != null && gasPrice.length > DATAWORD_LENGTH) {
             throw new RuntimeException("Gas Price is not valid");
         }
-        if (value != null  && value.length > DATAWORD_LENGTH) {
+        if (valueRaw != null && valueRaw.length > DATAWORD_LENGTH) {
             throw new RuntimeException("Value is not valid");
         }
         if (getSignature() != null) {
@@ -235,7 +242,8 @@ public class Transaction implements SerializableObject {
         this.gasPrice = transaction.get(1).getRLPData();
         this.gasLimit = transaction.get(2).getRLPData();
         this.receiveAddress = RLP.parseRskAddress(transaction.get(3).getRLPData());
-        this.value = transaction.get(4).getRLPData();
+        this.valueRaw = nullToZeroArray(transaction.get(4).getRLPData());
+        this.value = RLP.parseCoin(this.valueRaw);
         this.data = transaction.get(5).getRLPData();
         // only parse signature in case tx is signed
         if (transaction.get(6).getRLPData() != null) {
@@ -282,15 +290,15 @@ public class Transaction implements SerializableObject {
             rlpParse();
         }
 
-        return nonce == null ? ZERO_BYTE_ARRAY : nonce;
+        return nullToZeroArray(nonce);
     }
 
-    public byte[] getValue() {
+    public Coin getValue() {
         if (!parsed) {
             rlpParse();
         }
 
-        return value == null ? ZERO_BYTE_ARRAY : value;
+        return value;
     }
 
     public RskAddress getReceiveAddress() {
@@ -306,7 +314,7 @@ public class Transaction implements SerializableObject {
             rlpParse();
         }
 
-        return gasPrice == null ? ZERO_BYTE_ARRAY : gasPrice;
+        return nullToZeroArray(gasPrice);
     }
 
     public byte[] getGasLimit() {
@@ -447,7 +455,7 @@ public class Transaction implements SerializableObject {
                 ", gasPrice=" + ByteUtil.toHexString(gasPrice) +
                 ", gas=" + ByteUtil.toHexString(gasLimit) +
                 ", receiveAddress=" + receiveAddress.toString() +
-                ", value=" + ByteUtil.toHexString(value) +
+                ", value=" + value.toString() +
                 ", data=" + ByteUtil.toHexString(data) +
                 ", signatureV=" + (signature == null ? "" : signature.v) +
                 ", signatureR=" + (signature == null ? "" : ByteUtil.toHexString(BigIntegers.asUnsignedByteArray(signature.r))) +
@@ -479,7 +487,7 @@ public class Transaction implements SerializableObject {
         byte[] toEncodeGasPrice = RLP.encodeElement(this.gasPrice);
         byte[] toEncodeGasLimit = RLP.encodeElement(this.gasLimit);
         byte[] toEncodeReceiveAddress = RLP.encodeRskAddress(this.receiveAddress);
-        byte[] toEncodeValue = RLP.encodeElement(this.value);
+        byte[] toEncodeValue = RLP.encodeElement(this.valueRaw);
         byte[] toEncodeData = RLP.encodeElement(this.data);
 
         // Since EIP-155 use chainId for v
@@ -514,7 +522,7 @@ public class Transaction implements SerializableObject {
         byte[] toEncodeGasPrice = RLP.encodeElement(this.gasPrice);
         byte[] toEncodeGasLimit = RLP.encodeElement(this.gasLimit);
         byte[] toEncodeReceiveAddress = RLP.encodeRskAddress(this.receiveAddress);
-        byte[] toEncodeValue = RLP.encodeElement(this.value);
+        byte[] toEncodeValue = RLP.encodeElement(this.valueRaw);
         byte[] toEncodeData = RLP.encodeElement(this.data);
 
         byte[] v;
@@ -593,6 +601,10 @@ public class Transaction implements SerializableObject {
                 BigIntegers.asUnsignedByteArray(amount),
                 decodedData,
                 config.getBlockchainConfig().getCommonConstants().getChainId());
+    }
+
+    private byte[] nullToZeroArray(byte[] data) {
+        return data == null ? ZERO_BYTE_ARRAY : data;
     }
 
 }

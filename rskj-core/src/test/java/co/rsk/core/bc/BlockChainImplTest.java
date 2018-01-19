@@ -21,6 +21,7 @@ package co.rsk.core.bc;
 import co.rsk.blockchain.utils.BlockGenerator;
 import co.rsk.blocks.DummyBlockRecorder;
 import co.rsk.config.RskSystemProperties;
+import co.rsk.core.Coin;
 import co.rsk.core.RskAddress;
 import co.rsk.db.RepositoryImpl;
 import co.rsk.test.builders.BlockBuilder;
@@ -104,7 +105,7 @@ public class BlockChainImplTest {
 
         Assert.assertArrayEquals(genesis.getStateRoot(), repository.getRoot());
 
-        Assert.assertEquals(new BigInteger("21000000000000000000000000"), repository.getBalance(PrecompiledContracts.BRIDGE_ADDR));
+        Assert.assertEquals(new BigInteger("21000000000000000000000000"), repository.getBalance(PrecompiledContracts.BRIDGE_ADDR).asBigInteger());
     }
 
 
@@ -131,7 +132,7 @@ public class BlockChainImplTest {
 
         Assert.assertArrayEquals(genesis.getStateRoot(), repository.getRoot());
 
-        Assert.assertEquals(new BigInteger("21000000000000000000000000"), repository.getBalance(PrecompiledContracts.BRIDGE_ADDR));
+        Assert.assertEquals(new BigInteger("21000000000000000000000000"), repository.getBalance(PrecompiledContracts.BRIDGE_ADDR).asBigInteger());
     }
 
     @Test
@@ -162,7 +163,7 @@ public class BlockChainImplTest {
 
         Assert.assertArrayEquals(genesis.getStateRoot(), repository.getRoot());
 
-        Assert.assertEquals(new BigInteger("21000000000000000000000000"), repository.getBalance(PrecompiledContracts.BRIDGE_ADDR));
+        Assert.assertEquals(new BigInteger("21000000000000000000000000"), repository.getBalance(PrecompiledContracts.BRIDGE_ADDR).asBigInteger());
     }
 
     @Test
@@ -285,7 +286,7 @@ public class BlockChainImplTest {
         Block genesis = getGenesisBlock(blockChain);
         Block block1 = new BlockGenerator().createChildBlock(genesis);
 
-        block1.getHeader().setPaidFees(block1.getHeader().getPaidFees().subtract(BigInteger.ONE));
+        block1.getHeader().setPaidFees(block1.getHeader().getPaidFees().subtract(Coin.valueOf(1L)));
 
         Assert.assertEquals(ImportResult.IMPORTED_BEST, blockChain.tryToConnect(genesis));
         Assert.assertEquals(ImportResult.INVALID_BLOCK, blockChain.tryToConnect(block1));
@@ -575,7 +576,7 @@ public class BlockChainImplTest {
                 block1b.getHash(), 0, 32) < 0;
         Block block2b = blockGenerator.createChildBlock(block1b);
 
-        block2b.getHeader().setPaidFees(block2b.getHeader().getPaidFees().add(BigInteger.ONE));
+        block2b.getHeader().setPaidFees(block2b.getHeader().getPaidFees().add(Coin.valueOf(1L)));
 
         Assert.assertEquals(ImportResult.IMPORTED_BEST, blockChain.tryToConnect(genesis));
         Assert.assertEquals(ImportResult.IMPORTED_BEST, blockChain.tryToConnect(
@@ -859,7 +860,7 @@ public class BlockChainImplTest {
 
         Repository track = repository.startTracking();
 
-        Account account = BlockExecutorTest.createAccount("acctest1", track, BigInteger.valueOf(100000));
+        Account account = BlockExecutorTest.createAccount("acctest1", track, Coin.valueOf(100000));
         Assert.assertTrue(account.getEcKey().hasPrivKey());
         track.commit();
 

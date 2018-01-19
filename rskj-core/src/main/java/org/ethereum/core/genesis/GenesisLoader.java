@@ -20,6 +20,7 @@
 package org.ethereum.core.genesis;
 
 import co.rsk.config.RskSystemProperties;
+import co.rsk.core.Coin;
 import co.rsk.trie.TrieImpl;
 import com.google.common.io.ByteStreams;
 import org.apache.commons.lang3.StringUtils;
@@ -84,7 +85,7 @@ public class GenesisLoader {
         ContractDetailsMapper detailsMapper = new ContractDetailsMapper(config);
         for (Map.Entry<String, AllocatedAccount> accountEntry : alloc.entrySet()) {
             if(!StringUtils.equals("00", accountEntry.getKey())) {
-                BigInteger balance = new BigInteger(accountEntry.getValue().getBalance());
+                Coin balance = new Coin(new BigInteger(accountEntry.getValue().getBalance()));
                 BigInteger nonce;
                 if (accountEntry.getValue().getNonce() != null) {
                     nonce = new BigInteger(accountEntry.getValue().getNonce());

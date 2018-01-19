@@ -20,6 +20,7 @@ package co.rsk.core.bc;
 
 import co.rsk.blockchain.utils.BlockGenerator;
 import co.rsk.config.RskSystemProperties;
+import co.rsk.core.Coin;
 import co.rsk.test.builders.AccountBuilder;
 import co.rsk.test.builders.BlockBuilder;
 import co.rsk.test.builders.BlockChainBuilder;
@@ -88,7 +89,7 @@ public class PendingStateImplTest {
 
     @Test
     public void usingAccountsWithInitialBalance() {
-        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, BigInteger.TEN);
+        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, Coin.valueOf(10L));
 
         Repository repository = pendingState.getRepository();
 
@@ -97,8 +98,8 @@ public class PendingStateImplTest {
         Account account1 = createAccount(1);
         Account account2 = createAccount(2);
 
-        Assert.assertEquals(BigInteger.TEN, repository.getBalance(account1.getAddress()));
-        Assert.assertEquals(BigInteger.TEN, repository.getBalance(account2.getAddress()));
+        Assert.assertEquals(BigInteger.TEN, repository.getBalance(account1.getAddress()).asBigInteger());
+        Assert.assertEquals(BigInteger.TEN, repository.getBalance(account2.getAddress()).asBigInteger());
     }
 
     @Test
@@ -126,19 +127,21 @@ public class PendingStateImplTest {
 
     @Test
     public void addAndExecutePendingTransaction() {
-        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, new BigInteger("1000000"));
+        Coin balance = Coin.valueOf(1000000);
+        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, balance);
         Transaction tx = createSampleTransaction(1, 2, 1000, 0);
         Account receiver = createAccount(2);
 
         pendingState.addPendingTransaction(tx);
 
         Repository repository = pendingState.getRepository();
-        Assert.assertEquals(BigInteger.valueOf(1001000), repository.getBalance(receiver.getAddress()));
+        Assert.assertEquals(BigInteger.valueOf(1001000), repository.getBalance(receiver.getAddress()).asBigInteger());
     }
 
     @Test
     public void addAndExecuteTwoPendingTransaction() {
-        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, new BigInteger("1000000"));
+        Coin balance = Coin.valueOf(1000000);
+        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, balance);
         Transaction tx1 = createSampleTransaction(1, 2, 1000, 0);
         Transaction tx2 = createSampleTransaction(1, 2, 3000, 1);
         Account receiver = createAccount(2);
@@ -147,12 +150,13 @@ public class PendingStateImplTest {
         pendingState.addPendingTransaction(tx2);
 
         Repository repository = pendingState.getRepository();
-        Assert.assertEquals(BigInteger.valueOf(1004000), repository.getBalance(receiver.getAddress()));
+        Assert.assertEquals(BigInteger.valueOf(1004000), repository.getBalance(receiver.getAddress()).asBigInteger());
     }
 
     @Test
     public void rejectPendingStateTransaction() {
-        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, new BigInteger("1000000"));
+        Coin balance = Coin.valueOf(1000000);
+        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, balance);
         Transaction tx = createSampleTransaction(1, 2, 1000, 0);
         tx.setGasLimit(BigInteger.valueOf(3000001).toByteArray());
         Account receiver = createAccount(2);
@@ -160,12 +164,13 @@ public class PendingStateImplTest {
         pendingState.addPendingTransaction(tx);
 
         Repository repository = pendingState.getRepository();
-        Assert.assertEquals(BigInteger.valueOf(1000000), repository.getBalance(receiver.getAddress()));
+        Assert.assertEquals(BigInteger.valueOf(1000000), repository.getBalance(receiver.getAddress()).asBigInteger());
     }
 
     @Test
     public void removeObsoletePendingTransactionsByBlock() {
-        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, new BigInteger("1000000"));
+        Coin balance = Coin.valueOf(1000000);
+        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, balance);
         Transaction tx1 = createSampleTransaction(1, 2, 1000, 0);
         Transaction tx2 = createSampleTransaction(1, 2, 3000, 1);
 
@@ -198,7 +203,8 @@ public class PendingStateImplTest {
 
     @Test
     public void removeObsoletePendingTransactionsByTimeout() throws InterruptedException {
-        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, new BigInteger("1000000"));
+        Coin balance = Coin.valueOf(1000000);
+        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, balance);
         Transaction tx1 = createSampleTransaction(1, 2, 1000, 0);
         Transaction tx2 = createSampleTransaction(1, 2, 3000, 1);
 
@@ -225,7 +231,8 @@ public class PendingStateImplTest {
 
     @Test
     public void removeObsoleteWireTransactions() {
-        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, new BigInteger("1000000"));
+        Coin balance = Coin.valueOf(1000000);
+        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, balance);
         Transaction tx1 = createSampleTransaction(1, 2, 1000, 0);
         Transaction tx2 = createSampleTransaction(1, 2, 3000, 1);
         List<Transaction> txs = new ArrayList<>();
@@ -260,7 +267,8 @@ public class PendingStateImplTest {
 
     @Test
     public void getAllPendingTransactions() {
-        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, new BigInteger("1000000"));
+        Coin balance = Coin.valueOf(1000000);
+        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, balance);
         Transaction tx1 = createSampleTransaction(1, 2, 1000, 0);
         Transaction tx2 = createSampleTransaction(1, 2, 3000, 1);
 
@@ -280,7 +288,8 @@ public class PendingStateImplTest {
 
     @Test
     public void processBestBlockRemovesTransactionsInBlock() {
-        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(3, new BigInteger("1000000"));
+        Coin balance = Coin.valueOf(1000000);
+        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(3, balance);
         Transaction tx1 = createSampleTransaction(1, 2, 1000, 0);
         Transaction tx2 = createSampleTransaction(1, 2, 3000, 1);
         Transaction tx3 = createSampleTransaction(2, 3, 1000, 0);
@@ -318,7 +327,8 @@ public class PendingStateImplTest {
 
     @Test
     public void retractBlockAddsTransactionsAsWired() {
-        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(3, new BigInteger("1000000"));
+        Coin balance = Coin.valueOf(1000000);
+        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(3, balance);
         Transaction tx1 = createSampleTransaction(1, 2, 1000, 0);
         Transaction tx2 = createSampleTransaction(1, 2, 3000, 1);
         Transaction tx3 = createSampleTransaction(2, 3, 1000, 0);
@@ -356,7 +366,8 @@ public class PendingStateImplTest {
 
     @Test
     public void updatePendingState() {
-        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, new BigInteger("1000000"));
+        Coin balance = Coin.valueOf(1000000);
+        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, balance);
         Transaction tx1 = createSampleTransaction(1, 2, 1000, 0);
         Transaction tx2 = createSampleTransaction(1, 2, 3000, 1);
         Account receiver = createAccount(2);
@@ -367,7 +378,7 @@ public class PendingStateImplTest {
         pendingState.updateState();
 
         Repository repository = pendingState.getRepository();
-        Assert.assertEquals(BigInteger.valueOf(1004000), repository.getBalance(receiver.getAddress()));
+        Assert.assertEquals(BigInteger.valueOf(1004000), repository.getBalance(receiver.getAddress()).asBigInteger());
     }
 
     @Test
@@ -446,7 +457,8 @@ public class PendingStateImplTest {
 
     @Test
     public void executeContractWithFakeBlock() {
-        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, new BigInteger("1000000"));
+        Coin balance = Coin.valueOf(1000000);
+        PendingStateImpl pendingState = createSampleNewPendingStateWithAccounts(2, balance);
         // "NUMBER PUSH1 0x00 SSTORE" compiled to bytecodes
         String code = "43600055";
         Transaction tx = createSampleTransactionWithData(1, 0, code);
@@ -464,7 +476,7 @@ public class PendingStateImplTest {
         return new PendingStateImpl(config, blockChain, blockChain.getRepository(), blockChain.getBlockStore(), new ProgramInvokeFactoryImpl(), new BlockExecutorTest.SimpleEthereumListener(), 10, 100);
     }
 
-    private static PendingStateImpl createSampleNewPendingStateWithAccounts(int naccounts, BigInteger balance) {
+    private static PendingStateImpl createSampleNewPendingStateWithAccounts(int naccounts, Coin balance) {
         BlockChainImpl blockChain = createBlockchain();
 
         Block best = blockChain.getStatus().getBestBlock();

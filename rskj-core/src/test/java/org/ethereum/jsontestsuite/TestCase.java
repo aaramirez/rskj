@@ -19,6 +19,7 @@
 
 package org.ethereum.jsontestsuite;
 
+import co.rsk.core.RskAddress;
 import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.util.ByteUtil;
 import org.json.simple.JSONArray;
@@ -106,20 +107,20 @@ public class TestCase {
 
             for (Object key : preJSON.keySet()) {
 
-                byte[] keyBytes = Hex.decode(key.toString());
+                RskAddress addr = new RskAddress(key.toString());
                 AccountState accountState =
-                        new AccountState(keyBytes, (JSONObject) preJSON.get(key));
+                        new AccountState(addr, (JSONObject) preJSON.get(key));
 
-                pre.put(new ByteArrayWrapper(keyBytes), accountState);
+                pre.put(new ByteArrayWrapper(addr.getBytes()), accountState);
             }
 
             for (Object key : postJSON.keySet()) {
 
-                byte[] keyBytes = Hex.decode(key.toString());
+                RskAddress addr = new RskAddress(key.toString());
                 AccountState accountState =
-                        new AccountState(keyBytes, (JSONObject) postJSON.get(key));
+                        new AccountState(addr, (JSONObject) postJSON.get(key));
 
-                post.put(new ByteArrayWrapper(keyBytes), accountState);
+                post.put(new ByteArrayWrapper(addr.getBytes()), accountState);
             }
 
             for (Object callCreate : callCreates) {

@@ -78,12 +78,12 @@ public class NetworkStateExporterTest {
         String address1String = "1000000000000000000000000000000000000000";
         RskAddress address1 = new RskAddress(address1String);
         repository.createAccount(address1);
-        repository.addBalance(address1, BigInteger.ONE);
+        repository.addBalance(address1, Coin.valueOf(1L));
         repository.increaseNonce(address1);
         String address2String = "2000000000000000000000000000000000000000";
         RskAddress address2 = new RskAddress(address2String);
         repository.createAccount(address2);
-        repository.addBalance(address2, BigInteger.TEN);
+        repository.addBalance(address2, Coin.valueOf(10L));
         repository.increaseNonce(address2);
         repository.increaseNonce(address2);
 
@@ -92,7 +92,7 @@ public class NetworkStateExporterTest {
         repository.increaseNonce(remascSender);
 
         repository.createAccount(PrecompiledContracts.REMASC_ADDR);
-        repository.addBalance(PrecompiledContracts.REMASC_ADDR, BigInteger.TEN);
+        repository.addBalance(PrecompiledContracts.REMASC_ADDR, Coin.valueOf(10L));
         repository.increaseNonce(PrecompiledContracts.REMASC_ADDR);
 
 
@@ -121,7 +121,7 @@ public class NetworkStateExporterTest {
         String address1String = "1000000000000000000000000000000000000000";
         RskAddress address1 = new RskAddress(address1String);
         repository.createAccount(address1);
-        repository.addBalance(address1, BigInteger.ONE);
+        repository.addBalance(address1, Coin.valueOf(1L));
         repository.increaseNonce(address1);
         ContractDetails contractDetails = new co.rsk.db.ContractDetailsImpl(config);
         contractDetails.setCode(new byte[] {1, 2, 3, 4});

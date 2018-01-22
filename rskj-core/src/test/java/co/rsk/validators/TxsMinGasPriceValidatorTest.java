@@ -39,7 +39,7 @@ public class TxsMinGasPriceValidatorTest {
     public void blockWithNullTxList() {
         Block block = Mockito.mock(Block.class);
         Mockito.when(block.getTransactionsList()).thenReturn(null);
-        Mockito.when(block.getMinGasPriceAsInteger()).thenReturn(BLOCK_MGP.asBigInteger());
+        Mockito.when(block.getMinimumGasPrice()).thenReturn(BLOCK_MGP);
         TxsMinGasPriceRule tmgpv = new TxsMinGasPriceRule();
 
         Assert.assertTrue(tmgpv.isValid(block));
@@ -49,7 +49,7 @@ public class TxsMinGasPriceValidatorTest {
     public void blockWithEmptyTxList() {
         Block block = Mockito.mock(Block.class);
         Mockito.when(block.getTransactionsList()).thenReturn(new ArrayList<>());
-        Mockito.when(block.getMinGasPriceAsInteger()).thenReturn(BLOCK_MGP.asBigInteger());
+        Mockito.when(block.getMinimumGasPrice()).thenReturn(BLOCK_MGP);
         TxsMinGasPriceRule tmgpv = new TxsMinGasPriceRule();
 
         Assert.assertTrue(tmgpv.isValid(block));
@@ -68,7 +68,7 @@ public class TxsMinGasPriceValidatorTest {
         Block block = Mockito.mock(Block.class);
         List<Transaction> txs = buildTxList(10, 0, BLOCK_MGP);
         Mockito.when(block.getTransactionsList()).thenReturn(txs);
-        Mockito.when(block.getMinGasPriceAsInteger()).thenReturn(BLOCK_MGP.asBigInteger());
+        Mockito.when(block.getMinimumGasPrice()).thenReturn(BLOCK_MGP);
 
         TxsMinGasPriceRule tmgpv = new TxsMinGasPriceRule();
 
@@ -80,7 +80,7 @@ public class TxsMinGasPriceValidatorTest {
         Block block = Mockito.mock(Block.class);
         List<Transaction> txs = buildTxList(0, 10, BLOCK_MGP);
         Mockito.when(block.getTransactionsList()).thenReturn(txs);
-        Mockito.when(block.getMinGasPriceAsInteger()).thenReturn(BLOCK_MGP.asBigInteger());
+        Mockito.when(block.getMinimumGasPrice()).thenReturn(BLOCK_MGP);
 
         TxsMinGasPriceRule tmgpv = new TxsMinGasPriceRule();
 
@@ -92,7 +92,7 @@ public class TxsMinGasPriceValidatorTest {
         Block block = Mockito.mock(Block.class);
         List<Transaction> txs = buildTxList(10, 10, BLOCK_MGP);
         Mockito.when(block.getTransactionsList()).thenReturn(txs);
-        Mockito.when(block.getMinGasPriceAsInteger()).thenReturn(BLOCK_MGP.asBigInteger());
+        Mockito.when(block.getMinimumGasPrice()).thenReturn(BLOCK_MGP);
 
         TxsMinGasPriceRule tmgpv = new TxsMinGasPriceRule();
 

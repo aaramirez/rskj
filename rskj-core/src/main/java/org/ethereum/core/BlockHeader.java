@@ -94,7 +94,7 @@ public class BlockHeader implements SerializableObject {
     /* The bitcoin protobuf serialized coinbase tx for merged mining */
     private byte[] bitcoinMergedMiningCoinbaseTransaction;
     /*The mgp for a tx to be included in the block*/
-    private byte[] minimumGasPrice;
+    private Coin minimumGasPrice;
     private int uncleCount;
 
     /* Indicates if this block header cannot be changed */
@@ -140,7 +140,7 @@ public class BlockHeader implements SerializableObject {
         this.extraData = rlpHeader.get(12).getRLPData();
 
         this.paidFees = RLP.parseCoin(rlpHeader.get(13).getRLPData());
-        this.minimumGasPrice = rlpHeader.get(14).getRLPData();
+        this.minimumGasPrice = RLP.parseCoin(rlpHeader.get(14).getRLPData());
 
         int r = 15;
 
@@ -188,7 +188,7 @@ public class BlockHeader implements SerializableObject {
         this.timestamp = timestamp;
         this.extraData = extraData;
         this.stateRoot = ByteUtils.clone(EMPTY_TRIE_HASH);
-        this.minimumGasPrice = minimumGasPrice;
+        this.minimumGasPrice = minimumGasPrice == null ? null : new Coin(minimumGasPrice);
         this.receiptTrieRoot = ByteUtils.clone(EMPTY_TRIE_HASH);
         this.uncleCount = uncleCount;
         this.paidFees = Coin.ZERO;
@@ -399,17 +399,8 @@ public class BlockHeader implements SerializableObject {
         return this.getEncoded(false);
     }
 
-    public byte[] getMinimumGasPrice() {
+    public Coin getMinimumGasPrice() {
         return this.minimumGasPrice;
-    }
-
-    public void setMinimumGasPrice(byte[] minimumGasPrice) {
-        /* A sealed block header is immutable, cannot be changed */
-        if (this.sealed) {
-            throw new SealedBlockHeaderException("trying to alter minimum gas price");
-        }
-
-        this.minimumGasPrice = minimumGasPrice;
     }
 
     public byte[] getEncoded(boolean withMergedMiningFields) {
@@ -440,7 +431,7 @@ public class BlockHeader implements SerializableObject {
         byte[] timestamp = RLP.encodeBigInteger(BigInteger.valueOf(this.timestamp));
         byte[] extraData = RLP.encodeElement(this.extraData);
         byte[] paidFees = RLP.encodeCoin(this.paidFees);
-        byte[] mgp = RLP.encodeElement(this.minimumGasPrice);
+        byte[] mgp = RLP.encodeCoin(this.minimumGasPrice);
         List<byte[]> fieldToEncodeList = Lists.newArrayList(parentHash, unclesHash, coinbase,
                 stateRoot, txTrieRoot, receiptTrieRoot, logsBloom, difficulty, number,
                 gasLimit, gasUsed, timestamp, extraData, paidFees, mgp);
@@ -521,7 +512,7 @@ public class BlockHeader implements SerializableObject {
         toStringBuff.append("  gasUsed=").append(gasUsed).append(suffix);
         toStringBuff.append("  timestamp=").append(timestamp).append(" (").append(Utils.longToDateTime(timestamp)).append(")").append(suffix);
         toStringBuff.append("  extraData=").append(toHexString(extraData)).append(suffix);
-        toStringBuff.append("  minGasPrice=").append(toHexString(minimumGasPrice)).append(suffix);
+        toStringBuff.append("  minGasPrice=").append(minimumGasPrice).append(suffix);
 
         return toStringBuff.toString();
     }

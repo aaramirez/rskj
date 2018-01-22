@@ -44,12 +44,14 @@ import org.ethereum.util.FastByteComparisons;
 import org.ethereum.vm.PrecompiledContracts;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mapdb.DB;
 import org.spongycastle.util.Arrays;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ajlopez on 29/07/2016.
@@ -817,8 +819,7 @@ public class BlockChainImplTest {
     public void addInvalidMGPBlock() {
         Repository repository = new RepositoryImpl(config, new TrieStoreImpl(new HashMapDB()));
 
-        IndexedBlockStore blockStore = new IndexedBlockStore(config);
-        blockStore.init(new HashMap<>(), new HashMapDB(), null);
+        IndexedBlockStore blockStore = new IndexedBlockStore(new HashMap<>(), new HashMapDB(), null);
 
         BlockValidatorBuilder validatorBuilder = new BlockValidatorBuilder();
         validatorBuilder.addBlockRootValidationRule().addBlockUnclesValidationRule(blockStore)
@@ -849,8 +850,7 @@ public class BlockChainImplTest {
     public void addValidMGPBlock() {
         Repository repository = new RepositoryImpl(config, new TrieStoreImpl(new HashMapDB()));
 
-        IndexedBlockStore blockStore = new IndexedBlockStore(config);
-        blockStore.init(new HashMap<>(), new HashMapDB(), null);
+        IndexedBlockStore blockStore = new IndexedBlockStore(new HashMap<>(), new HashMapDB(), (DB) null);
 
         BlockValidatorBuilder validatorBuilder = new BlockValidatorBuilder();
         validatorBuilder.blockStore(blockStore)
@@ -888,8 +888,7 @@ public class BlockChainImplTest {
     }
 
     public static BlockChainImpl createBlockChain(Repository repository) {
-        IndexedBlockStore blockStore = new IndexedBlockStore(config);
-        blockStore.init(new HashMap<>(), new HashMapDB(), null);
+        IndexedBlockStore blockStore = new IndexedBlockStore(new HashMap<>(), new HashMapDB(), null);
 
         BlockValidatorBuilder validatorBuilder = new BlockValidatorBuilder();
         validatorBuilder.addBlockRootValidationRule().addBlockUnclesValidationRule(blockStore)

@@ -20,6 +20,7 @@
 package org.ethereum.facade;
 
 import co.rsk.config.RskSystemProperties;
+import co.rsk.core.Coin;
 import co.rsk.core.ReversibleTransactionExecutor;
 import org.ethereum.core.*;
 import org.ethereum.core.PendingState;
@@ -191,7 +192,7 @@ public class EthereumImpl implements Ethereum {
     }
 
     @Override
-    public long getGasPrice() {
+    public Coin getGasPrice() {
         return gasPriceTracker.getGasPrice();
     }
 }

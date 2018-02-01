@@ -101,7 +101,7 @@ public class MinerHelper {
         for (Transaction tx : block.getTransactionsList()) {
 
             TransactionExecutor executor = new TransactionExecutor(config, tx, txindex++, block.getCoinbase(),
-                    track, blockStore, blockchain.getReceiptStore(),
+                    track, blockStore, null,
                     programInvokeFactory, block, new EthereumListenerAdapter(), totalGasUsed);
 
             executor.init();
